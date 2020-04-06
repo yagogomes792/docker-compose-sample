@@ -1,0 +1,47 @@
+version: "3.7"
+
+services:
+  web:
+    # build de imagens não funciona com docker stack. Somente imagens do docker hub
+    #build:
+     # context: ./projetoPhp
+     # dockerfile: Dockerfile
+    image: php:7.3-apache
+    deploy:
+      replicas: 3
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - ./projetoPHP:/var/www/html
+    depends_on:
+      - db
+    networks:
+      - frontend
+      - backend
+    ports:
+      - 80:80
+  db:
+    image: mysql:8
+    command: --default-authentication-plugin=mysql_native_password
+    deploy:
+      replicas: 3
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+    networks:
+      - backend
+    ports: 
+      - 3306:3306
+    environment:
+      MYSQL_DATABASE: db
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+networks:
+  frontend:
+  backend:
